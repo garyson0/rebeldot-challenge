@@ -8,13 +8,17 @@ from sqlalchemy import delete
 from app.db.models import FaqItem
 from app.db.session import SessionLocal
 from app.llm.client import get_embeddings
+from app.utils.clean_faq import clean_item
 
 FAQ_FILE = Path("data/faq.json")
 
 
 def load_faq() -> int:
     with FAQ_FILE.open(encoding="utf-8") as f:
-        items = json.load(f)["knowledge_base_items"]
+        raw_items = json.load(f)["knowledge_base_items"]
+
+    cleaned = (clean_item(item) for item in raw_items)
+    items = [item for item in cleaned if item is not None]
 
     vectors = get_embeddings().embed_documents([item["question"] for item in items])
 
