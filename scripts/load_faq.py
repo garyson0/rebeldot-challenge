@@ -8,7 +8,7 @@ from sqlalchemy import delete
 from app.db.models import FaqItem
 from app.db.session import SessionLocal
 from app.llm.client import get_embeddings
-from app.utils.clean_faq import clean_item
+from app.utils.clean_faq import build_embedding_text, clean_item
 
 FAQ_FILE = Path("data/faq.json")
 
@@ -20,7 +20,7 @@ def load_faq() -> int:
     cleaned = (clean_item(item) for item in raw_items)
     items = [item for item in cleaned if item is not None]
 
-    vectors = get_embeddings().embed_documents([item["question"] for item in items])
+    vectors = get_embeddings().embed_documents([build_embedding_text(item) for item in items])
 
     with SessionLocal() as db:
         db.execute(delete(FaqItem))

@@ -1,4 +1,4 @@
-from app.utils.clean_faq import clean_item, clean_text
+from app.utils.clean_faq import build_embedding_text, clean_item, clean_text
 
 
 def make_item(question: str, answer: str = "Some answer.") -> dict:
@@ -29,3 +29,9 @@ def test_item_with_emoji_answer_is_skipped():
 
 def test_clean_text_removes_emoji_and_extra_spaces():
     assert clean_text("help!!!  😭😭😭 my account") == "help!!! my account"
+
+
+def test_embedding_text_starts_with_category():
+    item = {"question": "How can I retrieve lost data?", "answer": "A", "category": "data_recovery"}
+
+    assert build_embedding_text(item) == "data recovery: How can I retrieve lost data?"

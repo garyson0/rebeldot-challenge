@@ -16,9 +16,14 @@ def clean_item(item: dict) -> dict | None:
     if len(question.split()) < 2 or EMOJI.search(item["answer"]):
         return None
 
-    answer = clean_text(item["answer"])
     return {
         "question": question,
-        "answer": answer,
+        "answer": item["answer"].replace("‑", "-"),
         "category": item["category"],
     }
+
+
+def build_embedding_text(item: dict) -> str:
+    """Embedding the category before the question for context."""
+    category = item["category"].replace("_", " ")
+    return f"{category}: {item['question']}"
