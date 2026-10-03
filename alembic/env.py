@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import create_engine, pool
 
 from alembic import context
+from app.db import models  # noqa: F401  (registers models on Base.metadata)
 from app.db.session import DATABASE_URL, Base
 
 # this is the Alembic Config object, which provides
@@ -62,9 +63,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
