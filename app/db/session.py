@@ -5,13 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
 
-DATABASE_URL = (
-    f"postgresql+psycopg://"
-    f"{settings.postgres_user}:"
-    f"{settings.postgres_password}@localhost:"
-    f"{settings.postgres_port}/"
-    f"{settings.postgres_db}"
-)
+DATABASE_URL = settings.database_url
 
 engine = create_engine(
     DATABASE_URL,
