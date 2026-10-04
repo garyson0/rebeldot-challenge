@@ -24,6 +24,9 @@ class FaqItem(Base):
     answer: Mapped[str] = mapped_column(Text)
     category: Mapped[str] = mapped_column(String(50))
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
+    collection: Mapped[str] = mapped_column(String(50), default="default", server_default="default")
+    # SHA-256: embedded text + model name
+    content_hash: Mapped[str | None] = mapped_column(String(64))
 
     def __repr__(self) -> str:
         return f"FaqItem(id={self.id!r}, question={self.question!r})"

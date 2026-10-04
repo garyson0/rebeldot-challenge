@@ -17,7 +17,10 @@ class FaqMatch:
 
 
 def find_best_match(
-    db: Session, question: str, embeddings: Embeddings | None = None
+    db: Session,
+    question: str,
+    embeddings: Embeddings | None = None,
+    collection: str = "default",
 ) -> FaqMatch | None:
     """Returns the most similar item to ``question`` or None if the FAQ is empty.
 
@@ -27,7 +30,13 @@ def find_best_match(
     query_vector = embeddings.embed_query(question)
 
     distance = FaqItem.embedding.cosine_distance(query_vector)
-    row = db.execute(select(FaqItem, distance).order_by(distance).limit(1)).first()
+    query = (
+        select(FaqItem, distance)
+        .where(FaqItem.collection == collection)
+        .order_by(distance)
+        .limit(1)
+    )
+    row = db.execute(query).first()
     if row is None:
         return None
 
