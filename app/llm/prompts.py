@@ -27,3 +27,16 @@ ROUTER_PROMPT = ChatPromptTemplate.from_messages(
         ("human", "{question}"),
     ]
 )
+
+PERSONALIZE_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful customer support assistant. Answer the user's question "
+            "using only the FAQ answer below. Make it fit the user's question, "
+            "but do not add any steps or facts that are not in the FAQ answer. Keep it short.\n\n"
+            "FAQ answer:\n{faq_answer}",
+        ),
+        ("human", "{question}"),
+    ]
+)
