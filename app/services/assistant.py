@@ -7,14 +7,21 @@ from app.schemas.ask import AskResponse
 from app.services.retrieval import find_best_match
 from app.services.router import choose_route
 
+COMPLIANCE_ANSWER = (
+    "This is not really what I was trained for, therefore I cannot answer. Try again."
+)
+
 
 def ask_question(db: Session, question: str) -> AskResponse:
-    """Answer from the FAQ when there is a close match, otherwise ask the LLM."""
+    """Answer from the FAQ, from the LLM, or refuse if the question is off topic."""
     match = find_best_match(db, question)
-    route = choose_route(match.similarity if match else None)
+    route = choose_route(question, match.similarity if match else None)
 
     if route == "local":
         return AskResponse(source="local", matched_question=match.question, answer=match.answer)
+
+    if route == "compliance":
+        return AskResponse(source="compliance", matched_question="N/A", answer=COMPLIANCE_ANSWER)
 
     chain = ANSWER_PROMPT | get_chat_model() | StrOutputParser()
     answer = chain.invoke({"question": question})

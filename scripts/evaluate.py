@@ -3,6 +3,7 @@
 For every question it prints the best FAQ match and its score, then:
 - counts how many retrieved matches align with the expected FAQ question
 - for different thresholds: counts how many questions are routed correctly
+- counts the correct routes for LLM router (local,openai,compliance)
 """
 
 import json
@@ -10,6 +11,7 @@ from pathlib import Path
 
 from app.db.session import SessionLocal
 from app.services.retrieval import find_best_match
+from app.services.router import choose_route
 
 EVAL_FILE = Path("data/eval_questions.json")
 THRESHOLDS = [0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70]
@@ -28,6 +30,7 @@ def evaluate() -> None:
                 {
                     "question": case["question"],
                     "expected": case["expected_match"],
+                    "expected_route": case["expected_route"],
                     "matched": match.question,
                     "score": match.similarity,
                     "is_correct": match.question == case["expected_match"],
@@ -56,6 +59,17 @@ def evaluate() -> None:
             elif result["is_correct"] and goes_to_faq:
                 correct_route += 1
         print(f"{threshold}       {correct_route}/{len(results)}")
+
+    # router LLM
+    print("\n Router")
+    correct_route = 0
+    for result in results:
+        route = choose_route(result["question"], result["score"])
+        if route == result["expected_route"] and (route != "local" or result["is_correct"]):
+            correct_route += 1
+        else:
+            print(f"wrong: {result['question']} -> {route}, expected {result['expected_route']}")
+    print(f"Correct route: {correct_route}/{len(results)}")
 
 
 if __name__ == "__main__":
