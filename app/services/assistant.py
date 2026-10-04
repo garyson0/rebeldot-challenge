@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.llm.client import get_chat_model
 from app.llm.prompts import ANSWER_PROMPT, PERSONALIZE_PROMPT
 from app.schemas.ask import AskResponse
+from app.services.guardrails import is_prompt_injection
 from app.services.retrieval import find_best_match
 from app.services.router import choose_route
 
@@ -28,6 +29,9 @@ def personalize_answer(question: str, faq_answer: str) -> str:
 
 def ask_question(db: Session, question: str) -> AskResponse:
     """Answer from the FAQ, from the LLM, or refuse if the question is off topic."""
+    if is_prompt_injection(question):
+        return AskResponse(source="compliance", matched_question="N/A", answer=COMPLIANCE_ANSWER)
+
     match = find_best_match(db, question)
     route = choose_route(question, match.similarity if match else None)
 

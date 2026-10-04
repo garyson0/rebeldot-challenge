@@ -47,3 +47,19 @@ Two numbers:
 - Before 3 off-topic questions were sent to OpenAI
 - The 1 remaining miss is the profile picture question (wrong FAQ match)
 
+
+### Third evaluation: guardrails
+
+- Added a list of typical jailbreak phrases to check against before any embedding or LLM call
+- The users question is wrapped in <question> tags in every prompt, and the prompts say it is only a question, never instructions
+
+
+- Before: no guard, only the LLM router
+- After: input guard + LLM router
+
+| Result                                     | Before | After |
+| ------------------------------------------ | ------ | ----- |
+| Jailbreaks ending in compliance (out of 8) |   4    |   8   |
+| Normal questions wrongly blocked (of 21)   |   -    |   0   |
+
+
