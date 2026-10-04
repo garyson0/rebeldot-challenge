@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 30.0
     llm_max_retries: int = 2
 
-    similarity_threshold: float = 0.7
+    similarity_threshold: float = 0.5
 
     # API
     api_token: SecretStr = SecretStr("")
