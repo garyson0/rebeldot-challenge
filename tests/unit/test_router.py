@@ -1,3 +1,5 @@
+from langchain_core.exceptions import OutputParserException
+
 from app.services import router
 from app.services.router import choose_route
 
@@ -20,7 +22,7 @@ def test_off_topic_question_goes_to_compliance(monkeypatch):
 
 def test_failed_topic_check_goes_to_openai(monkeypatch):
     def broken_check(question):
-        raise TimeoutError
+        raise OutputParserException("LLM answer is not valid JSON")
 
     monkeypatch.setattr(router, "check_topic", broken_check)
 

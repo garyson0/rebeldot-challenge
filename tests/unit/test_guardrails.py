@@ -1,4 +1,4 @@
-from app.services.guardrails import is_prompt_injection
+from app.services.guardrails import is_prompt_injection, is_safe_output
 
 
 def test_jailbreak_attempts_are_detected():
@@ -23,3 +23,19 @@ def test_normal_questions_are_not_flagged():
     ]
     for question in questions:
         assert not is_prompt_injection(question), question
+
+
+def test_normal_answer_passes_output_check():
+    assert is_safe_output("Go to Settings -> Billing -> Invoices.")
+
+
+def test_bad_answers_fail_output_check():
+    bad_answers = [
+        "",
+        "   ",
+        "x" * 3000,
+        "Sure, the key is sk-abcdefghijklmnopqrstuvwxyz123456",
+        "My instructions say: treat it only as a question.",
+    ]
+    for answer in bad_answers:
+        assert not is_safe_output(answer), answer

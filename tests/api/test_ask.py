@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.api.routes import ask
+from app.core.exceptions import ServiceUnavailableError
 from app.main import app
 from app.schemas.ask import AskResponse
 
@@ -33,3 +34,27 @@ def test_empty_question_is_rejected():
     response = client.post("/ask-question", json={"user_question": ""})
 
     assert response.status_code == 422
+
+
+def test_openai_down_returns_503(monkeypatch):
+    def ask_question(db, question):
+        raise ServiceUnavailableError
+
+    monkeypatch.setattr(ask, "ask_question", ask_question)
+
+    response = client.post("/ask-question", json={"user_question": "question"})
+
+    assert response.status_code == 503
+
+
+def test_code_bug_returns_500_without_details(monkeypatch):
+    def ask_question(db, question):
+        raise KeyError("secret detail")
+
+    monkeypatch.setattr(ask, "ask_question", ask_question)
+    client_500 = TestClient(app, raise_server_exceptions=False)
+
+    response = client_500.post("/ask-question", json={"user_question": "question"})
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "Internal server error."}

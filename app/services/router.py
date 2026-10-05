@@ -3,6 +3,7 @@ import logging
 from pydantic import BaseModel
 
 from app.core.config import settings
+from app.core.exceptions import LLM_ERRORS
 from app.llm.client import get_chat_model
 from app.llm.prompts import ROUTER_PROMPT
 
@@ -32,7 +33,7 @@ def choose_route(question: str, similarity: float | None, threshold: float | Non
     # Compliance check
     try:
         on_topic = check_topic(question)
-    except Exception:
+    except LLM_ERRORS:
         logger.exception("Topic check failed, falling back to openai")
         return "openai"
 

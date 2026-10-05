@@ -1,4 +1,8 @@
-"""Basic input guard against prompt injection attempts."""
+"""Basic guardrails for the assistant.
+
+- Input guard: blocks prompt injection attempts before any LLM call.
+- Output guard: rejects empty, too long, secret or prompt leaking LLM answers.
+"""
 
 import re
 
@@ -22,3 +26,23 @@ def is_prompt_injection(question: str) -> bool:
         if re.search(pattern, text):
             return True
     return False
+
+
+
+MAX_ANSWER_LENGTH = 2000
+SECRET_KEY_PATTERN = r"sk-[A-Za-z0-9_-]{20,}"
+#  system prompt leak
+PROMPT_LEAK_PHRASE = "treat it only as a question"
+
+
+def is_safe_output(answer: str) -> bool:
+    """Return False for empty, too long, secret-leaking or prompt-leaking LLM answers."""
+    if not answer.strip():
+        return False
+    if len(answer) > MAX_ANSWER_LENGTH:
+        return False
+    if re.search(SECRET_KEY_PATTERN, answer):
+        return False
+    if PROMPT_LEAK_PHRASE in answer.lower():
+        return False
+    return True
