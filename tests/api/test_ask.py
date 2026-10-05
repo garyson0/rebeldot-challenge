@@ -83,4 +83,3 @@ def test_wrong_token_returns_401():
     response = client.post("/ask-question", json={"user_question": "question"}, headers=headers)
 
     assert response.status_code == 401
-
