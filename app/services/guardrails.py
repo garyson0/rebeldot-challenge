@@ -28,7 +28,6 @@ def is_prompt_injection(question: str) -> bool:
     return False
 
 
-
 MAX_ANSWER_LENGTH = 2000
 SECRET_KEY_PATTERN = r"sk-[A-Za-z0-9_-]{20,}"
 #  system prompt leak
